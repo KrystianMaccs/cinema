@@ -1,3 +1,12 @@
-from django.shortcuts import render
+from ninja import Router
+from .models import Movie
+from .schemas import MovieIn
 
-# Create your views here.
+movies_router = Router()
+
+@movies_router.post("/")
+def add_movie(request, movie: MovieIn):
+    movie_obj = Movie(**movie.dict())
+    movie_obj.save()
+    return {"message": "Movie added successfully"}
+
