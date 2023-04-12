@@ -32,13 +32,14 @@ DJANGO_APPS = [
 
 SITE_ID = 1
 
-LOCAL_APP = [
+LOCAL_APPS = [
     'apps.users',
     'apps.movies',
-    'apps.common'
+    'apps.common',
 ]
 
 THIRD_PARTY_APPS = [
+    'ninja',
     'django_celery_results',
     'django_celery_beat',
 ]
@@ -124,6 +125,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+AUTH_USER_MODEL = 'users.User'
+
+# Celery Settings
 
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
 CELERY_RESULT_BACKEND = 'django-db'
