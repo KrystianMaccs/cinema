@@ -33,8 +33,9 @@ DJANGO_APPS = [
 SITE_ID = 1
 
 LOCAL_APP = [
-    'users',
-    'movies',
+    'apps.users',
+    'apps.movies',
+    'apps.common'
 ]
 
 THIRD_PARTY_APPS = [
