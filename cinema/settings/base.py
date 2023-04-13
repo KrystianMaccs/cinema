@@ -79,12 +79,7 @@ WSGI_APPLICATION = 'cinema.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+
 
 
 # Password validation
@@ -130,19 +125,24 @@ AUTH_USER_MODEL = 'users.User'
 # Celery Settings
 
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
-CELERY_RESULT_BACKEND = 'django-db'
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND')
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Africa/Lagos'
 
 # Celery Scheduler
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_IGNORE_RESULT = True
-CELERY_BROKER_URL = config('CELERY_URL')
-CELERY_HIJACK_ROOT_LOGGER = False
-REDIS_CHANNEL_URL = config('REDIS_CHANNEL_URL')
+# CELERY_TASK_TRACK_STARTED = True
+# CELERY_TASK_TIME_LIMIT = 30 * 60
+# CELERY_IGNORE_RESULT = True
+# CELERY_BROKER_URL = config('CELERY_URL')
+# CELERY_HIJACK_ROOT_LOGGER = False
+# REDIS_CHANNEL_URL = config('REDIS_CHANNEL_URL')
 
-# Celery Beat
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+# Celery beat scheduler settings
+CELERY_BEAT_SCHEDULE = {
+    'update-movie-rank': {
+        'task': 'apps.movies.tasks.update_movie_rank',
+        'schedule': timedelta(minutes=5),
+    },
+}

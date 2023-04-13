@@ -9,18 +9,10 @@ DATABASES = {
         'PASSWORD': config('POSTGRES_PASSWORD'),
         'PORT': config('POSTGRES_PORT'),
 
-    },
-    "nonrel": {
-        "ENGINE": "djongo",
-        "NAME": config('MONGO_DB_NAME'),
-        "CLIENT": {
-            "host": config('MONGO_DB_HOST'),
-            "port": int(config('MONGO_DB_PORT')),
-            "username": config('MONGO_DB_USERNAME'),
-            "password": config('MONGO_DB_PASSWORD'),
-        },
-        'TEST': {
-            'MIRROR': 'default',
-        },
     }
 }
+
+
+CELERY_BROKER_URL = config("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND")
+CELERY_TIMEZONE = "Africa/Lagos"

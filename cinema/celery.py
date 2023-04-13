@@ -1,27 +1,19 @@
 from __future__ import absolute_import, unicode_literals
 import os
 
+from cinema.settings import base
 from celery import Celery
-from django.conf import settings
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cinema.settings')
+
+
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cinema.settings.dev')
 
 app = Celery('cinema')
-app.conf.enable_utc = False
 
 app.conf.update(timezone = 'Africa/Lagos')
 
-app.config_from_object(settings, namespace='CELERY')
+app.config_from_object("cinema.settings.dev", namespace="CELERY"),
 
+app.autodiscover_tasks(lambda: base.INSTALLED_APPS)
 
-
-# Celery Beat Settings
-app.conf.beat_schedule = {
-    
-}
-
-app.autodiscover_tasks()
-
-@app.task(bind=True)
-def debug_task(self):
-    print(f'Request: {self.request!r}')
