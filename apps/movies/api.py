@@ -34,8 +34,10 @@ def update_movie(request, movie_id: int, movie: MovieIn):
 
 @api.delete("/movies/{movie_id}")
 def delete_movie(request, movie_id: int):
-    movie_obj = Movie.objects.get(id=movie_id)
-    movie_obj.delete()
-    sync_movie_to_mongodb.delay(movie_id)  # Call the Celery task asynchronously
-    return {"message": "Movie deleted successfully"}
-
+    try:
+        movie_obj = Movie.objects.get(id=movie_id)
+        movie_obj.delete()
+        sync_movie_to_mongodb.delay(movie_id)  # Call the Celery task asynchronously
+        return {"message": "Movie deleted successfully"}
+    except Movie.DoesNotExist:
+        return {"message": "Movie does not exist"}, status.HTTP_404_NOT_FOUND
