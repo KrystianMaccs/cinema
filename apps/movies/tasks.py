@@ -4,7 +4,7 @@ import uuid
 import bson
 from celery import Celery, shared_task
 from .models import Movie
-from .schema import MovieIn
+from .schema import MovieSchema
 from pymongo import MongoClient
 
 app = Celery("movies")
@@ -22,6 +22,15 @@ mongo_client = MongoClient(
     password=mongo_password,
     authSource=mongo_db_name,
 )
+@shared_task
+def get_trending_movies():
+    try:
+        movie_collection = mongo_client[mongo_db_name]['movies']
+        trending_movies = list(movie_collection.find({'status': 'running'}).sort('ranking', -1).limit(10))
+        return trending_movies
+    except Exception as e:
+        # Handle the exception here
+        return "An error occurred while retrieving trending movies: {}".format(str(e))
 
 @shared_task
 def sync_movie_to_mongodb(movie_id):
