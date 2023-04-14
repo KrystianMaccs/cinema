@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.http import Http404
 from ninja import ModelSchema
 from .models import Movie
