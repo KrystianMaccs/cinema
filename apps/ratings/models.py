@@ -1,6 +1,8 @@
+import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from apps.movies.models import Movie
+from apps.tickets.models import Ticket
 from apps.users.models import User
 
 
@@ -40,19 +42,19 @@ class MovieRating(models.Model):
 
 class TicketRating(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, db_index=True)
-    rating: Rating = models.OneToOneField(Rating, on_delete=models.CASCADE)
-    ticket: Ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
-    movie: Movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    rating = models.OneToOneField(Rating, on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     last_updated = models.DateTimeField(_('last updated'), auto_now=True)
     date_created = models.DateTimeField(_('date created'), auto_now_add=True)
 
 
-    def update_movie_rating(tr: TicketRating):
+    def update_movie_rating(tr):
         movie=tr.movie
         obj = MovieRating.objects.get_or_create(movie=movie)
         movie_rating: MovieRating = obj
         movie_rating.total_actual_score += tr.rating.value.score
-        movie_rating.total_presumable_score += get_max_rating_score()
+        movie_rating.total_presumable_score += 100
         movie_rating.rating = (movie_rating.total_actual_score / movie_rating.total_presumable_score) * 100
         movie_rating.save(update_fields=['total_presumable_score', 'total_actual_score', 'rating'])
         return movie_rating

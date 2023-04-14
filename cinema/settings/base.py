@@ -36,6 +36,7 @@ LOCAL_APPS = [
     'apps.users',
     'apps.movies',
     'apps.ratings',
+    'apps.tickets',
     'apps.protagonists',
     ]
 
