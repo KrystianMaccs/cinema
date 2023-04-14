@@ -35,8 +35,9 @@ SITE_ID = 1
 LOCAL_APPS = [
     'apps.users',
     'apps.movies',
-    'apps.common',
-]
+    'apps.ratings',
+    'apps.protagonists',
+    ]
 
 THIRD_PARTY_APPS = [
     'ninja',

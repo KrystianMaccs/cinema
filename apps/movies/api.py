@@ -49,7 +49,7 @@ def delete_movie(request, movie_id):
     except Movie.DoesNotExist:
         return HttpError(404, {"message": "Movie does not exist"})
     
-@router.get("/movies", response={200: List[MovieSchema], 404: Dict[str, str]})
+@router.get("/trending_movies/", response={200: List[MovieSchema], 404: Dict[str, str]})
 def list_trending_movies(request):
     try:
         movie_collection = get_trending_movies()
