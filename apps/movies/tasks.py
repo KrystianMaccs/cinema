@@ -1,4 +1,5 @@
 import os
+from typing import List
 from datetime import datetime, timedelta
 import uuid
 import bson
@@ -6,6 +7,8 @@ from celery import Celery, shared_task
 from .models import Movie
 from .schema import MovieSchema
 from pymongo import MongoClient
+from pymongo.collection import Collection
+from pymongo.errors import PyMongoError
 
 app = Celery("movies")
 
@@ -22,15 +25,38 @@ mongo_client = MongoClient(
     password=mongo_password,
     authSource=mongo_db_name,
 )
+
 @shared_task
-def get_trending_movies():
+def update_movie_rank():
+    upcoming_movies = Movie.objects.filter(status='upcoming')
+
+    for movie in upcoming_movies:
+        start_time = datetime.combine(movie.start_date, datetime.min.time())
+
+        if start_time <= datetime.now():
+            if movie.status == 'upcoming':
+                movie.ranking = 0
+            elif movie.status == 'starting':
+                movie.ranking = 10
+            elif movie.status == 'running':
+                movie.ranking = 20
+            elif movie.status == 'finished':
+                movie.ranking += 10
+
+            movie.save()
+
+    return None
+
+@shared_task
+def get_trending_movies() -> List:
     try:
+        update_movie_rank.delay() # call update_movie_rank as a dependency
         movie_collection = mongo_client[mongo_db_name]['movies']
         trending_movies = list(movie_collection.find({'status': 'running'}).sort('ranking', -1).limit(10))
         return trending_movies
-    except Exception as e:
-        # Handle the exception here
-        return "An error occurred while retrieving trending movies: {}".format(str(e))
+    except PyMongoError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @shared_task
 def sync_movie_to_mongodb(movie_id):
@@ -56,29 +82,6 @@ def sync_movie_to_mongodb(movie_id):
     except Exception as e:
         # Handle the exception here
         return "An error occurred while syncing movie to MongoDB: {}".format(str(e))
-
-
-
-@shared_task
-def update_movie_rank():
-    upcoming_movies = Movie.objects.filter(status='upcoming')
-
-    for movie in upcoming_movies:
-        start_time = datetime.combine(movie.start_date, datetime.min.time())
-
-        if start_time <= datetime.now():
-            if movie.status == 'upcoming':
-                movie.ranking = 0
-            elif movie.status == 'starting':
-                movie.ranking = 10
-            elif movie.status == 'running':
-                movie.ranking = 20
-            elif movie.status == 'finished':
-                movie.ranking += 10
-
-            movie.save()
-
-    return None
 
 
 movie_id = str(Movie.objects.first().id)
