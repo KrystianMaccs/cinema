@@ -65,12 +65,21 @@ def update_movie_rank():
 
     for movie in upcoming_movies:
         start_time = datetime.combine(movie.start_date, datetime.min.time())
+
         if start_time <= datetime.now():
-            movie.status = 'running'
-            movie.ranking += 10
+            if movie.status == 'upcoming':
+                movie.ranking = 0
+            elif movie.status == 'starting':
+                movie.ranking = 10
+            elif movie.status == 'running':
+                movie.ranking = 20
+            elif movie.status == 'finished':
+                movie.ranking += 10
+
             movie.save()
 
     return None
+
 
 movie_id = str(Movie.objects.first().id)
 app.conf.beat_schedule = {

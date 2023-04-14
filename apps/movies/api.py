@@ -1,5 +1,6 @@
 import uuid
-from ninja import Router, status
+from ninja import Router
+from ninja.errors import HttpError
 from typing import List, Dict
 from apps.movies.models import Movie
 from apps.movies.schema import MovieSchema
@@ -27,13 +28,13 @@ def movie(request, movie_id):
 def add_movie(request, movie: MovieSchema):
     movie_obj = Movie(**movie.dict())
     movie_obj.save()
-    sync_movie_to_mongodb.delay(movie_obj.id)  # Call the Celery task asynchronously
+    sync_movie_to_mongodb.delay(movie_obj.id)
     return {"message": "Movie added successfully"}
 
 @router.put("/movies/{movie_id}")
 def update_movie(request, movie_id: int, movie: MovieSchema):
     movie_obj = Movie.objects.filter(id=movie_id).update(**movie.dict())
-    sync_movie_to_mongodb.delay(movie_id)  # Call the Celery task asynchronously
+    sync_movie_to_mongodb.delay(movie_id)
     return {"message": "Movie updated successfully"}
 
 @router.delete("/movies/{movie_id}")
@@ -41,10 +42,10 @@ def delete_movie(request, movie_id):
     try:
         movie_obj = Movie.objects.get(id=movie_id)
         movie_obj.delete()
-        sync_movie_to_mongodb.delay(movie_id)  # Call the Celery task asynchronously
+        sync_movie_to_mongodb.delay(movie_id)
         return {"message": "Movie deleted successfully"}
     except Movie.DoesNotExist:
-        return ({"message": "Movie does not exist"}, status.HTTP_404_NOT_FOUND)
+        return HttpError(404, {"message": "Movie does not exist"})
 
 
 @router.get('/trending_movies')

@@ -5,4 +5,4 @@ from django.contrib.auth.models import User
 class UserSchema(ModelSchema):
     class Config:
         model = User
-        model_fields = ['id', 'username', 'email', 'password']
+        model_fields = ['id', 'email', 'username', 'first_name', 'last_name', 'password']
