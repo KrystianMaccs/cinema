@@ -1,5 +1,5 @@
 import uuid
-from ninja import Router
+from ninja import Router, status
 from typing import List, Dict
 from apps.movies.models import Movie
 from apps.movies.schema import MovieSchema
